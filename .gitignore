@@ -1,0 +1,15 @@
+# Environnement
+.env
+backend/.env
+
+# Node
+node_modules/
+
+# Angular
+frontend/dist/
+
+# Logs
+*.log
+
+# Système
+.DS_Store

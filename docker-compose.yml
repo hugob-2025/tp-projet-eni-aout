@@ -1,0 +1,52 @@
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: todolist-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: todolist_db
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/scriptSQL.sql:/docker-entrypoint-initdb.d/scriptSQL.sql:ro
+    networks:
+      - todolist-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    image: todolist-backend:1.0
+    container_name: todolist-backend
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: todolist_db
+      DB_DIALECT: mysql
+      PORT: 3000
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    networks:
+      - todolist-network
+
+  frontend:
+    image: todolist-frontend:1.0
+    container_name: todolist-frontend
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+    networks:
+      - todolist-network
+
+networks:
+  todolist-network:
+
+volumes:
+  mysql_data:
