@@ -1,0 +1,63 @@
+name: CI/CD Frontend
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      # Récupère le code du dépôt
+      - uses: actions/checkout@v4
+
+      # Configure Node.js pour l’environnement de test
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20 
+          cache: 'npm'
+
+      # Installe les dépendances pour le job de test
+      - run: npm ci
+
+      # Exécute les tests unitaires Angular en mode Chrome headless
+      - name: Exécuter les tests unitaires
+        run: npx ng test --watch=false --browsers=ChromeHeadless
+
+  build:
+    needs: test
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      # Récupère le code du dépôt
+      - uses: actions/checkout@v4
+
+      # Configure Node.js pour l’environnement de build
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      # Installe les dépendances pour le job de build
+      - run: npm ci
+
+      # Génère le fichier environment.prod.ts avec l’URL de l’API en production
+      # Le système d'ingress d'AKS permet d'exposer le backend et le frontend via un reverse proxy
+      # On définit donc l'URL de l'API comme '/api' pour que les appels soient redirigés vers le backend via l'ingress
+      # Adapter apiUrl selon l'host utilisé pour le backend si nécessaire
+      - name: Générer environment.prod.ts
+        run: |
+          cat > src/environments/environment.prod.ts <<EOF
+          export const environment = {
+            production: true,
+            apiUrl: '/api'
+          };
+          EOF
+
+      # Construit l’application Angular en mode production
+      - name: Construire le bundle de production
+        run: npx ng build --configuration production
+
+# TODO: construire l'image Docker du frontend, la pousser vers GHCR et la déployer sur AKS
