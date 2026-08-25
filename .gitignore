@@ -13,3 +13,10 @@ frontend/dist/
 
 # Système
 .DS_Store
+
+# Terraform
+iac/.terraform/
+iac/terraform.tfstate
+iac/terraform.tfstate.*
+iac/*.tfvars
+iac/*.tfvars.json
