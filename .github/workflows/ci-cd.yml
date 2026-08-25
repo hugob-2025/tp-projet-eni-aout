@@ -96,25 +96,40 @@ jobs:
   # BUILD DOCKER
   # =========================
   docker-build:
-    name: Build Docker
-    runs-on: ubuntu-latest
 
-    needs:
-      - frontend-tests
-      - backend-tests
+        name: Build et Push Docker
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Récupération du code
-        uses: actions/checkout@v4
+        needs:
+          - frontend-tests
+          - backend-tests
 
-      - name: Build image Backend
-        run: |
-          docker build \
-            -t todolist-backend:1.0 \
-            ./backend
+        steps:
+          - name: Récupération du code
+            uses: actions/checkout@v4
 
-      - name: Build image Frontend
-        run: |
-          docker build \
-            -t todolist-frontend:1.0 \
-            ./frontend
+          - name: Connexion à Docker Hub
+            uses: docker/login-action@v3
+            with:
+              username: ${{ secrets.DOCKERHUB_USERNAME }}
+              password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+          - name: Build image Backend
+            run: |
+              docker build \
+                -t hugob2025/todolist-backend:1.0 \
+                ./backend
+
+          - name: Build image Frontend
+            run: |
+              docker build \
+                -t hugob2025/todolist-frontend:1.1 \
+                ./frontend
+
+          - name: Push image Backend
+            run: |
+              docker push hugob2025/todolist-backend:1.0
+
+          - name: Push image Frontend
+            run: |
+              docker push hugob2025/todolist-frontend:1.1
