@@ -36,7 +36,7 @@ services:
       - todolist-network
 
   frontend:
-    image: todolist-frontend:1.0
+    image: todolist-frontend:1.1
     container_name: todolist-frontend
     depends_on:
       - backend

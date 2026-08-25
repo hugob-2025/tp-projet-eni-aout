@@ -13,15 +13,16 @@ RUN npm ci
 # Copier le reste du projet Angular
 COPY . .
 
-# Construire l'application Angular en mode production
-RUN npm run build -- --configuration production
-
+# Configurer l'URL de l'API pour la production
+RUN sed -i "s|REPLACE_AT_BUILD_TIME|/api|" src/environments/environment.prod.ts && \
+    npm run build -- --configuration production
 
 # Deuxième étape : utiliser Nginx pour servir l'application
 FROM nginx:alpine
 
 # Copier les fichiers Angular générés vers le dossier web de Nginx
 COPY --from=build /app/dist/frontend /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Exposer le port 80 utilisé par Nginx
 EXPOSE 80
