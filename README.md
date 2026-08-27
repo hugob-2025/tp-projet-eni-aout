@@ -1,12 +1,19 @@
 Projet devops ENI
 
 1)L’architecture de l’application
+
 2)Les choix techniques
+
 3)La démarche CI/CD
+
 4)La configuration AKS
+
 5)L’infrastructure déclarée avec Terraform
+
 6)Le monitoring
+
 7)Les difficultés rencontrées
+
 
 1)L’architecture de l’application
 L'ensemble de l'architecture est exécuté sur un cluster AKS. Il contiens plusieurs pods, notemment :
